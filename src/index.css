@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Dancing+Script:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: #0D0D1A;
+  color: #FFF8F0;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1a0a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FF8FAB, #FFB347);
+  border-radius: 3px;
+}
+
+/* Cursor */
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: #FF8FAB;
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: difference;
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255,143,171,0.6);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 99998;
+  transition: transform 0.15s ease, width 0.2s, height 0.2s;
+  backdrop-filter: blur(1px);
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glow text */
+.glow-text {
+  text-shadow: 0 0 20px rgba(255, 143, 171, 0.6), 0 0 40px rgba(255, 143, 171, 0.3);
+}
+
+.glow-text-gold {
+  text-shadow: 0 0 20px rgba(255, 179, 71, 0.6), 0 0 40px rgba(255, 179, 71, 0.3);
+}
+
+/* Polaroid */
+.polaroid {
+  background: white;
+  padding: 12px 12px 40px 12px;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.3),
+    0 2px 8px rgba(0,0,0,0.2),
+    inset 0 0 0 1px rgba(255,255,255,0.5);
+  transform-style: preserve-3d;
+}
+
+.polaroid::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Video card hover */
+.video-card:hover .video-overlay {
+  opacity: 0;
+}
+
+/* Particle */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Timeline */
+.timeline-line {
+  background: linear-gradient(90deg, transparent, #FF8FAB, #FFB347, #FF8FAB, transparent);
+  height: 3px;
+  position: relative;
+}
+
+.timeline-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: inherit;
+  filter: blur(8px);
+  opacity: 0.6;
+}
+
+/* Star */
+.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Scratch card */
+.scratch-canvas {
+  cursor: crosshair;
+  border-radius: 16px;
+  position: absolute;
+  top: 0; left: 0;
+}
+
+/* Toast */
+.toast {
+  animation: fadeUp 0.4s ease-out forwards;
+}
+
+/* Button glow */
+.btn-glow {
+  box-shadow: 0 0 20px rgba(255, 143, 171, 0.4);
+  transition: all 0.3s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 40px rgba(255, 143, 171, 0.8), 0 0 60px rgba(255, 179, 71, 0.3);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Firefly */
+.firefly {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 230, 100, 0.8);
+  box-shadow: 0 0 10px rgba(255, 230, 100, 0.8), 0 0 20px rgba(255, 230, 100, 0.4);
+  animation: firefly-drift 8s ease-in-out infinite;
+}
+
+@keyframes firefly-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(var(--dx, 50px), var(--dy, -50px)) scale(0.8); opacity: 0.8; }
+  90% { opacity: 1; }
+}
+
+/* Balloon */
+.balloon {
+  cursor: pointer;
+  transition: transform 0.1s;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+}
+.balloon:hover {
+  transform: scale(1.1);
+}
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall 2s ease-in forwards;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Typewriter cursor */
+.typewriter-cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Night sky glow */
+.moon-glow {
+  box-shadow: 0 0 60px rgba(255, 220, 150, 0.4), 0 0 120px rgba(255, 220, 150, 0.2);
+}
+
+/* Floating heart */
+@keyframes float-heart {
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-200px) scale(0) rotate(30deg); opacity: 0; }
+}
+.floating-heart {
+  animation: float-heart 2s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Loading screen */
+@keyframes loading-star {
+  0%, 100% { opacity: 0.1; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Section transitions */
+.section-enter {
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+/* Image reflection */
+.image-reflection {
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%);
+  transform: scaleY(-1);
+  opacity: 0.3;
+}
+
+/* Responsive video */
+.video-responsive {
+  aspect-ratio: 16/9;
+}
+
+/* Netflix card */
+.netflix-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.netflix-card:hover {
+  transform: scale(1.05) translateY(-8px);
+  z-index: 10;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes swing {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
