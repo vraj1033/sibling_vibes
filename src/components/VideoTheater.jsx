@@ -103,53 +103,59 @@ export default function VideoTheater() {
             whileHover={{ y: -6, boxShadow: `0 16px 40px ${video.glow}` }}
             whileTap={{ scale: 0.97 }}
           >
-            {/* Thumbnail — always visible, covers video on mobile */}
+            {/* Video thumbnail area */}
             <div className="relative aspect-video overflow-hidden bg-black">
-              {/* Static thumbnail image */}
-              <img
-                src={video.thumb}
-                alt={video.title}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{
-                  opacity: hoveredIdx === i ? 0 : 1,
-                  transition: 'opacity 0.3s ease',
-                }}
-                loading="lazy"
-              />
-
-              {/* Video — desktop only, preload="none" so no auto-download */}
-              {!isMobile && (
-                <video
-                  ref={el => hoverRefs.current[i] = el}
-                  src={video.src}
-                  muted loop playsInline
-                  preload="none"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{
-                    opacity: hoveredIdx === i ? 1 : 0,
-                    transition: 'opacity 0.3s ease',
-                  }}
-                />
+              {isMobile ? (
+                <>
+                  {/* Mobile: video element with poster + preload="metadata" shows first frame, zero buffering */}
+                  <video
+                    src={video.src}
+                    muted playsInline
+                    preload="metadata"
+                    poster={video.thumb}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Play button always visible on mobile */}
+                  <div className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: 'rgba(0,0,0,0.35)' }}>
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                      style={{ background: `${video.color}25`, border: `2px solid ${video.color}70` }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill={video.color}>
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Desktop: static thumbnail, hover reveals video preview */}
+                  <img
+                    src={video.thumb}
+                    alt={video.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ opacity: hoveredIdx === i ? 0 : 1, transition: 'opacity 0.3s ease' }}
+                    loading="lazy"
+                  />
+                  <video
+                    ref={el => hoverRefs.current[i] = el}
+                    src={video.src}
+                    muted loop playsInline
+                    preload="none"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ opacity: hoveredIdx === i ? 1 : 0, transition: 'opacity 0.3s ease' }}
+                  />
+                  {/* Play button overlay — hidden on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: 'rgba(0,0,0,0.4)', opacity: hoveredIdx === i ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                      style={{ background: `${video.color}25`, border: `2px solid ${video.color}70` }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill={video.color}>
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                    </div>
+                  </div>
+                </>
               )}
-
-              {/* Play button overlay */}
-              <div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{
-                  background: 'rgba(0,0,0,0.4)',
-                  opacity: hoveredIdx === i ? 0 : 1,
-                  transition: 'opacity 0.3s ease',
-                }}
-              >
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center"
-                  style={{ background: `${video.color}25`, border: `2px solid ${video.color}70` }}
-                >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill={video.color}>
-                    <polygon points="5,3 19,12 5,21" />
-                  </svg>
-                </div>
-              </div>
 
               {/* Color top bar */}
               <div className="absolute top-0 left-0 right-0 h-0.5"
