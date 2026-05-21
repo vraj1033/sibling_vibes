@@ -129,85 +129,111 @@ function BalloonGame({ showToast }) {
 // ===== Scratch Card =====
 function ScratchCard({ showToast }) {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const [scratched, setScratched] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const isDrawing = useRef(false);
+  const revealedRef = useRef(false);
 
   const REVEAL_IMAGE = 'media/cutiee.jpeg';
 
+  // Draw the gold overlay
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#C4A882';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     grad.addColorStop(0, '#8B6914');
     grad.addColorStop(0.5, '#D4A843');
     grad.addColorStop(1, '#8B6914');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.font = 'bold 18px Nunito';
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.font = 'bold 16px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('✨ Scratch to reveal! ✨', canvas.width / 2, canvas.height / 2 - 10);
-    ctx.fillText('🪄 Magic awaits...', canvas.width / 2, canvas.height / 2 + 16);
+    ctx.fillText('✨ Scratch to reveal! ✨', canvas.width / 2, canvas.height / 2 - 8);
+    ctx.fillText('🪄 Magic awaits...', canvas.width / 2, canvas.height / 2 + 18);
   }, []);
 
-  const getPos = (e, canvas) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
-    };
-  };
-
-  const scratch = (e) => {
-    e.preventDefault();
-    if (!isDrawing.current) return;
+  // ── KEY FIX: add touch listeners as non-passive so preventDefault works ──
+  useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const pos = getPos(e, canvas);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
-    ctx.fill();
+    if (!canvas) return;
 
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let transparent = 0;
-    for (let i = 3; i < data.length; i += 4) if (data[i] === 0) transparent++;
-    const pct = (transparent / (canvas.width * canvas.height)) * 100;
-    setScratched(Math.round(pct));
-    if (pct > 60 && !revealed) {
-      setRevealed(true);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      showToast('Memory revealed! 💕', '🌸');
-    }
-  };
+    const getPos = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const touch = e.touches ? e.touches[0] : e;
+      return {
+        x: (touch.clientX - rect.left) * scaleX,
+        y: (touch.clientY - rect.top) * scaleY,
+      };
+    };
+
+    const doScratch = (e) => {
+      e.preventDefault(); // now works because listener is non-passive
+      if (!isDrawing.current) return;
+      const ctx = canvas.getContext('2d');
+      const pos = getPos(e);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sample every 4th pixel to reduce CPU load
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0;
+      for (let i = 3; i < data.length; i += 16) if (data[i] === 0) transparent++;
+      const pct = Math.round((transparent / (data.length / 16)) * 100);
+      setScratched(Math.min(pct, 99));
+
+      if (pct > 55 && !revealedRef.current) {
+        revealedRef.current = true;
+        setRevealed(true);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        showToast('Memory revealed! 💕', '🌸');
+      }
+    };
+
+    const onStart = (e) => { e.preventDefault(); isDrawing.current = true; doScratch(e); };
+    const onEnd = () => { isDrawing.current = false; };
+
+    // { passive: false } is what makes preventDefault() actually work on mobile
+    canvas.addEventListener('mousedown', onStart, { passive: false });
+    canvas.addEventListener('mousemove', doScratch, { passive: false });
+    canvas.addEventListener('mouseup', onEnd);
+    canvas.addEventListener('mouseleave', onEnd);
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchmove', doScratch, { passive: false });
+    canvas.addEventListener('touchend', onEnd);
+
+    return () => {
+      canvas.removeEventListener('mousedown', onStart);
+      canvas.removeEventListener('mousemove', doScratch);
+      canvas.removeEventListener('mouseup', onEnd);
+      canvas.removeEventListener('mouseleave', onEnd);
+      canvas.removeEventListener('touchstart', onStart);
+      canvas.removeEventListener('touchmove', doScratch);
+      canvas.removeEventListener('touchend', onEnd);
+    };
+  }, [showToast]);
 
   return (
-    <div className="relative rounded-3xl overflow-hidden" style={{ height: '220px' }}>
-      <img src={REVEAL_IMAGE} alt="Hidden memory" className="absolute inset-0 w-full h-full object-cover" />
+    <div ref={wrapRef} className="relative rounded-3xl overflow-hidden" style={{ height: '220px' }}>
+      <img src={REVEAL_IMAGE} alt="Hidden memory" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       {!revealed && (
         <canvas
           ref={canvasRef}
           width={400}
           height={220}
-          className="scratch-canvas w-full h-full"
-          onMouseDown={() => { isDrawing.current = true; }}
-          onMouseUp={() => { isDrawing.current = false; }}
-          onMouseLeave={() => { isDrawing.current = false; }}
-          onMouseMove={scratch}
-          onTouchStart={(e) => { isDrawing.current = true; }}
-          onTouchEnd={() => { isDrawing.current = false; }}
-          onTouchMove={scratch}
-          style={{ border: '1px solid rgba(255,214,224,0.2)' }}
+          className="absolute inset-0 w-full h-full"
+          style={{
+            cursor: 'crosshair',
+            borderRadius: '24px',
+            // touch-action: none stops browser scroll/zoom on the canvas element
+            touchAction: 'none',
+          }}
         />
       )}
       {revealed && (
