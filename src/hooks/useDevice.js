@@ -1,0 +1,17 @@
+import { useState, useEffect } from 'react';
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler, { passive: true });
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
+
+export function useIsLowEnd() {
+  // Detect low-end devices: mobile OR less than 4 CPU cores
+  return typeof navigator !== 'undefined' &&
+    (window.innerWidth < 768 || (navigator.hardwareConcurrency || 4) <= 2);
+}

@@ -13,6 +13,8 @@ import MusicToggle from './components/MusicToggle';
 import FloatingParticles from './components/FloatingParticles';
 import Toast from './components/Toast';
 
+const isMobile = window.innerWidth < 768;
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -27,7 +29,7 @@ export default function App() {
       {loading && <LoadingScreen onDone={() => setLoading(false)} />}
       {!loading && (
         <div className="relative min-h-screen bg-midnight overflow-x-hidden">
-          <CursorGlow />
+          {!isMobile && <CursorGlow />}
           <FloatingParticles />
           <MusicToggle />
           <HeroSection />

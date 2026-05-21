@@ -286,3 +286,62 @@ body {
   0%, 100% { transform: rotate(-3deg); }
   50% { transform: rotate(3deg); }
 }
+
+@keyframes moonPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes btnGlow {
+  0%, 100% { box-shadow: 0 0 18px rgba(255,143,171,0.4); }
+  50% { box-shadow: 0 0 40px rgba(255,143,171,0.85), 0 0 60px rgba(255,179,71,0.3); }
+}
+
+@keyframes scrollDot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(12px); }
+}
+
+/* ─── MOBILE PERFORMANCE ──────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Kill ALL backdrop-filter on mobile — single biggest perf win */
+  * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Replace glass effect with solid equivalent on mobile */
+  .glass {
+    background: rgba(20, 10, 30, 0.85) !important;
+  }
+  .glass-dark {
+    background: rgba(10, 5, 20, 0.92) !important;
+  }
+
+  /* Reduce blur filters on mobile */
+  video {
+    filter: brightness(0.45) !important;
+  }
+
+  /* Disable heavy box-shadows on mobile */
+  .glow-text {
+    text-shadow: 0 0 12px rgba(255,143,171,0.5);
+  }
+
+  /* Smoother scroll on iOS */
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure tap targets are large enough */
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* GPU-accelerate things that animate */
+.will-gpu {
+  will-change: transform;
+  transform: translateZ(0);
+}
